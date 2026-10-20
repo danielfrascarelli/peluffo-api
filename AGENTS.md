@@ -5,7 +5,7 @@ Central standards apply first. See .standards/README.md for read order and prece
 Project facts:
 
 - Runtime: Node.js 24 (active LTS), NestJS 11 on Express
-- Package manager: npm
+- Package manager: pnpm
 - Test runner: Jest (unit `*.spec.ts` in `src/`, e2e `*.e2e-spec.ts` in `test/`)
 - Deployment target: TBD, single instance (see "Single instance" below)
 - Database: none. Read-only JSON files in `data/`, loaded at boot. See docs/decisions/0001.
@@ -17,7 +17,7 @@ Project facts:
 Product rules (decided with the owner; change only with a new decision record):
 
 - Roles that log in: `peluffo`, `colibri`, `fibras`. All three read patients, psychologists and assignments.
-- `data/users.json` is never served. It holds argon2id hashes only; add users with `npm run hash-password`.
+- `data/users.json` is never served. It holds argon2id hashes only; add users with `pnpm hash-password`.
 - Auth: access and refresh JWTs in httpOnly, Secure, SameSite=Strict cookies, never in a response body. See docs/decisions/0001.
 
 Single instance: refresh sessions and rate-limit counters live in process memory. They reset on restart and are not shared. Running more than one instance needs a shared store first.
@@ -48,13 +48,13 @@ Git identity (see .standards/standards/GIT.md, "Authorship"):
 
 Checks (see .standards/standards/CHECKS.md):
 
-- format: npm run format:check
-- lint: npm run lint
-- typecheck: npm run typecheck
-- test: npm run test:all
-- build: npm run build
-- security: npm run security
-  Runs: npm audit --omit=dev --audit-level=high && gitleaks detect --source . --redact
+- format: pnpm format:check
+- lint: pnpm lint
+- typecheck: pnpm typecheck
+- test: pnpm test:all
+- build: pnpm build
+- security: pnpm security
+  Runs: pnpm audit --prod --audit-level=high && gitleaks detect --source . --redact
 
 ## Overrides
 
@@ -62,3 +62,5 @@ Checks (see .standards/standards/CHECKS.md):
   Protected controllers carry `@ApiCookieAuth()` instead. Reason: the access token is an httpOnly cookie; there is no bearer header to document.
 - Replaces stacks/NESTJS.md "These endpoints MUST exist, version-neutral, with the exposure each one is allowed".
   Only `/api/health/live` exists. Reason: there is no datastore or upstream to check; data loads at boot or the process fails to start, so ready would answer exactly what live answers.
+- Replaces stacks/NESTJS.md "`npm ci` is the lockfile install this stack MUST use".
+  CI installs with `pnpm install --frozen-lockfile`. Reason: the frontend and backend share one package manager, chosen by the owner.

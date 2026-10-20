@@ -14,14 +14,14 @@
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:e2e": "jest --config test/jest-e2e.json",
-    "test:all": "npm test && npm run test:e2e",
-    "security": "npm audit --omit=dev --audit-level=high && gitleaks detect --source . --redact",
+    "test:all": "pnpm test && pnpm test:e2e",
+    "security": "pnpm audit --prod --audit-level=high && gitleaks detect --source . --redact",
     "hash-password": "node scripts/hash-password.mjs"
   },
   "engines": {
     "node": "24.x"
   },
-  "packageManager": "npm@11.19.1",
+  "packageManager": "pnpm@10.26.1",
   "dependencies": {
     "@nestjs/common": "11.2.7",
     "@nestjs/config": "4.0.4",
@@ -69,12 +69,6 @@
     "typescript": "5.9.3",
     "typescript-eslint": "8.72.0"
   },
-  "allowScripts": {
-    "@parcel/watcher": false,
-    "@scarf/scarf": false,
-    "argon2": false,
-    "unrs-resolver": false
-  },
   "jest": {
     "moduleFileExtensions": [
       "js",
@@ -98,9 +92,15 @@
       "!**/*.spec.ts"
     ]
   },
-  "overrides": {
-    "@nestjs/swagger": {
-      "js-yaml": "5.5.0"
-    }
+  "pnpm": {
+    "overrides": {
+      "@nestjs/swagger>js-yaml": "5.5.0"
+    },
+    "ignoredBuiltDependencies": [
+      "@parcel/watcher",
+      "@scarf/scarf",
+      "argon2",
+      "unrs-resolver"
+    ]
   }
 }

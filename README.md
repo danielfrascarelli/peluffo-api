@@ -4,16 +4,16 @@ REST API for the Peluffo SPA (`../frontend`): cookie-based JWT login for the thr
 
 ## Prerequisites
 
-- Node.js 24 (`nvm use` reads `.nvmrc`), npm 11
-- gitleaks, for `npm run security`
+- Node.js 24 (`nvm use` reads `.nvmrc`), pnpm 10 (`packageManager`)
+- gitleaks, for `pnpm security`
 
 ## Setup
 
 ```bash
 nvm use
-npm ci
+pnpm install --frozen-lockfile
 cp .env.example .env   # then set both JWT secrets: openssl rand -base64 48
-npm run start:dev      # http://localhost:3000
+pnpm start:dev      # http://localhost:3000
 ```
 
 Frontend: set `VITE_API_URL=/api/v1` in `../frontend/.env`; the Vite dev server proxies `/api/v1` to port 3000, so cookies stay same-origin.
@@ -53,23 +53,23 @@ Errors always have the body `{ statusCode, code, message }`. Design: [docs/decis
 `data/*.json` is read once at boot; edit and restart. Add or change a user password:
 
 ```bash
-printf %s 'new-password' | npm run -s hash-password   # paste the output into passwordHash
+printf %s 'new-password' | pnpm -s hash-password   # paste the output into passwordHash
 ```
 
 ## Checks
 
 ```bash
-npm run format:check
-npm run lint
-npm run typecheck
-npm run test:all     # unit + e2e
-npm run build
-npm run security
+pnpm format:check
+pnpm lint
+pnpm typecheck
+pnpm test:all     # unit + e2e
+pnpm build
+pnpm security
 ```
 
 ## Build and deploy
 
-`npm run build` emits `dist/`; run with `npm start`. Deployment target is not chosen yet. Run a single instance (see AGENTS.md).
+`pnpm build` emits `dist/`; run with `pnpm start`. Deployment target is not chosen yet. Run a single instance (see AGENTS.md).
 
 Logging uses `new Logger(ClassName.name)` from `@nestjs/common`, routed through nestjs-pino as JSON with a request id per line.
 
