@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+#
+# Reject AI-agent trailers and session links in commit messages.
+#
+# Reference implementation. Copy into a consuming repo as .githooks/commit-msg
+# and install with: scripts/hooks/install.sh, which also copies lib/.
+#
+# Rule: standards/GIT.md, "Authorship".
+#
+set -euo pipefail
+
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/agent-trailers.sh
+source "$HOOK_DIR/lib/agent-trailers.sh"
+
+msg_file="$1"
+
+# Strip comment lines git adds to the template before matching.
+body="$(grep -v '^#' "$msg_file" || true)"
+
+if printf '%s\n' "$body" | agent_trailers_present; then
+  echo "commit-msg: agent trailer, session link, or 'Generated with ...' footer is not allowed." >&2
+  printf '%s\n' "$body" | agent_trailers_show >&2 || true
+  echo "            Commits carry the identity declared in AGENTS.md. See standards/GIT.md 'Authorship'." >&2
+  exit 1
+fi
+
+exit 0

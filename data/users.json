@@ -1,0 +1,35 @@
+[
+  {
+    "id": "u1",
+    "username": "colaborador.peluffo",
+    "role": "peluffo",
+    "firstName": "Carolina",
+    "lastName": "Anastasiadis",
+    "email": "c.anastasiadis@peluffo.uy",
+    "phone": "099 214 330",
+    "avatarUrl": "/avatars/u1.jpg",
+    "passwordHash": "$argon2id$v=19$m=65536,p=4,t=3$obRYYeWFALBMQEuSHNiHdw$W6/fJXBsZOjPt4UFb9W//Nwh2LM3+VkiC59DCsrRrAg"
+  },
+  {
+    "id": "u2",
+    "username": "colaborador.colibri",
+    "role": "colibri",
+    "firstName": "Carolina",
+    "lastName": "Brussoni",
+    "email": "c.brussoni@colibri.uy",
+    "phone": "098 553 107",
+    "avatarUrl": "/avatars/u2.jpg",
+    "passwordHash": "$argon2id$v=19$m=65536,p=4,t=3$tBkJpr+LpfswbO5nq7iHfQ$RWxRzZ1RTkIsYdDK47YaTFJo3mei5YprqPfbDlf0i9k"
+  },
+  {
+    "id": "u3",
+    "username": "fibras",
+    "role": "fibras",
+    "firstName": "Laura",
+    "lastName": "Fibras",
+    "email": "l.fibras@salud.uy",
+    "phone": "091 870 642",
+    "avatarUrl": "/avatars/u3.jpg",
+    "passwordHash": "$argon2id$v=19$m=65536,p=4,t=3$PtycPbp3xNj3IU3X04T7Kg$uwAuJUglLJ06511L3fudPnmMI0evBlWHXE45nyF1gUQ"
+  }
+]
