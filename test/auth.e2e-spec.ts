@@ -112,6 +112,17 @@ describe("auth and resources", () => {
     expect(errorOf(res).code).toBe("RATE_LIMITED");
   });
 
+  it("keeps the dependencies check behind login and reports Google Sheets as unconfigured in tests", async () => {
+    await request(server).get("/api/health/dependencies").expect(401);
+    const access = cookiesOf(await login())[ACCESS]!.pair;
+    const res = await request(server).get("/api/health/dependencies").set("Cookie", access).expect(503);
+    expect(errorOf(res)).toEqual({
+      statusCode: 503,
+      code: "DEPENDENCY_UNAVAILABLE",
+      message: "googleSheets: not configured",
+    });
+  });
+
   it("exposes a public liveness probe outside the version prefix", async () => {
     const res = await request(server).get("/api/health/live").expect(200);
     expect(res.body).toEqual({ status: "ok", info: {}, error: {}, details: {} });

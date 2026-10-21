@@ -16,6 +16,8 @@ export const EnvNames = {
   JwtRefreshTtl: "JWT_REFRESH_TTL",
   DataDir: "DATA_DIR",
   SwaggerEnabled: "SWAGGER_ENABLED",
+  GoogleCredentials: "GOOGLE_APPLICATION_CREDENTIALS",
+  GoogleSheetId: "GOOGLE_SHEET_ID",
 } as const;
 
 const envSchema = Joi.object({
@@ -31,6 +33,9 @@ const envSchema = Joi.object({
   [EnvNames.JwtRefreshTtl]: Joi.number().integer().min(300).default(604800),
   [EnvNames.DataDir]: Joi.string().default("data"),
   [EnvNames.SwaggerEnabled]: Joi.boolean().default(false),
+  // Optional integration: empty or unset leaves Google Sheets unconfigured.
+  [EnvNames.GoogleCredentials]: Joi.string().allow(""),
+  [EnvNames.GoogleSheetId]: Joi.string().allow(""),
 });
 
 export const configOptions: ConfigModuleOptions = {

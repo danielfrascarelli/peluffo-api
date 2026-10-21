@@ -18,6 +18,7 @@ Product rules (decided with the owner; change only with a new decision record):
 
 - Roles that log in: `peluffo`, `colibri`, `fibras`. All three read patients, psychologists and assignments.
 - `data/users.json` is never served. It holds argon2id hashes only; add users with `pnpm hash-password`.
+- Google Sheets: read-only through the service account `peluffo-sheets-reader@peluffo-api.iam.gserviceaccount.com`, which sees only sheets shared with it. Its key lives in `secrets/` (git-ignored), never in `data/`.
 - Auth: access and refresh JWTs in httpOnly, Secure, SameSite=Strict cookies, never in a response body. See docs/decisions/0001.
 
 Single instance: refresh sessions and rate-limit counters live in process memory. They reset on restart and are not shared. Running more than one instance needs a shared store first.
@@ -28,7 +29,9 @@ Departures from the stacks/NESTJS.md reference stack (reason per row):
 - Auth `bcrypt`: argon2id instead. OWASP's first recommendation; memory-hard as SECURITY.md requires.
 - Swagger bearer auth: cookie auth (`addCookieAuth`). Tokens are never readable by client JavaScript.
 - Tracing (OpenTelemetry), error tracking (Sentry): not added. No collector or DSN exists yet; add when one does.
-- Resilience (`opossum`), outbound HTTP, scheduling, WebSockets: not used. The service makes no outbound calls and has no jobs or sockets.
+- Resilience (`opossum`): not yet. The only outbound call (Google Sheets) is the dependencies health check, with a 5 s timeout. Add a breaker when a request path reads the sheet.
+- Outbound HTTP (`@nestjs/axios`): `google-auth-library` makes the authenticated Sheets call itself.
+- Scheduling, WebSockets: not used.
 - Production process (PM2): deferred until a deployment target is chosen.
 - Committed `openapi.json` with drift check: deferred; the spec is served at `/docs-json` when `SWAGGER_ENABLED=true`.
 - Integration suite (`*.int-spec.ts`): none. There is no database to integrate with; e2e covers the HTTP boundary.
@@ -61,6 +64,6 @@ Checks (see .standards/standards/CHECKS.md):
 - Replaces stacks/NESTJS.md "Every protected controller MUST carry `@ApiBearerAuth()`".
   Protected controllers carry `@ApiCookieAuth()` instead. Reason: the access token is an httpOnly cookie; there is no bearer header to document.
 - Replaces stacks/NESTJS.md "These endpoints MUST exist, version-neutral, with the exposure each one is allowed".
-  Only `/api/health/live` exists. Reason: there is no datastore or upstream to check; data loads at boot or the process fails to start, so ready would answer exactly what live answers.
+  `/api/health/live` and `/api/health/dependencies` exist; `/health/ready` does not. Reason: there is no datastore; data loads at boot or the process fails to start, so ready would answer exactly what live answers.
 - Replaces stacks/NESTJS.md "`npm ci` is the lockfile install this stack MUST use".
   CI installs with `pnpm install --frozen-lockfile`. Reason: the frontend and backend share one package manager, chosen by the owner.
