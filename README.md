@@ -36,7 +36,7 @@ Frontend: set `VITE_API_URL=/api/v1` in `../frontend/.env`; the Vite dev server 
 
 ## API
 
-All routes live under `/api/v1` except `GET /api/health/live`.
+All routes live under `/api/v1` except the health routes under `/api/health`.
 
 | Route                                             | Access                                               |
 | ------------------------------------------------- | ---------------------------------------------------- |
@@ -47,6 +47,16 @@ All routes live under `/api/v1` except `GET /api/health/live`.
 | `GET /patients`, `/psychologists`, `/assignments` | any role                                             |
 
 Errors always have the body `{ statusCode, code, message }`. Design: [docs/decisions/0001](docs/decisions/0001-cookie-jwt-auth-and-json-data.md).
+
+## Google Sheets
+
+The backend reads a private Google Sheet as the service account `peluffo-sheets-reader@peluffo-api.iam.gserviceaccount.com` (GCP project `peluffo-api`).
+
+1. Ask the owner for the key, or create one in GCP (IAM → Service Accounts → Keys). Save it as `secrets/google-sa.json`; `secrets/` is git-ignored.
+2. Share the sheet with the service account email as Viewer.
+3. Set `GOOGLE_APPLICATION_CREDENTIALS` and `GOOGLE_SHEET_ID` in `.env`, start the app, log in, and call `GET /api/health/dependencies`.
+
+A 403 means the sheet is not shared with the service account, or the Sheets API is disabled in the project. A 404 means the id is wrong.
 
 ## Data
 

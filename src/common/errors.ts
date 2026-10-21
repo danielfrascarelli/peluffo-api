@@ -10,6 +10,7 @@ export enum ErrorCode {
   PayloadTooLarge = "PAYLOAD_TOO_LARGE",
   RateLimited = "RATE_LIMITED",
   Internal = "INTERNAL",
+  DependencyUnavailable = "DEPENDENCY_UNAVAILABLE",
 }
 
 export const errorStatus: Record<ErrorCode, number> = {
@@ -22,6 +23,7 @@ export const errorStatus: Record<ErrorCode, number> = {
   [ErrorCode.PayloadTooLarge]: 413,
   [ErrorCode.RateLimited]: 429,
   [ErrorCode.Internal]: 500,
+  [ErrorCode.DependencyUnavailable]: 503,
 };
 
 const defaultMessage: Record<ErrorCode, string> = {
@@ -34,6 +36,7 @@ const defaultMessage: Record<ErrorCode, string> = {
   [ErrorCode.PayloadTooLarge]: "Payload too large",
   [ErrorCode.RateLimited]: "Too many requests",
   [ErrorCode.Internal]: "Internal server error",
+  [ErrorCode.DependencyUnavailable]: "A dependency is unavailable",
 };
 
 export interface ErrorBody {

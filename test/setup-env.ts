@@ -11,4 +11,7 @@ Object.assign(process.env, {
   JWT_REFRESH_TTL: "604800",
   DATA_DIR: "data",
   SWAGGER_ENABLED: "false",
+  // Empty, not unset: a set variable wins over .env, so tests never reach Google.
+  GOOGLE_APPLICATION_CREDENTIALS: "",
+  GOOGLE_SHEET_ID: "",
 });
