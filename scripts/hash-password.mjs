@@ -4,7 +4,7 @@ import { text } from "node:stream/consumers";
 
 const password = (await text(process.stdin)).replace(/\r?\n$/, "");
 if (!password) {
-  process.stderr.write("usage: printf %s 'password' | npm run -s hash-password\n");
+  process.stderr.write("usage: printf %s 'password' | pnpm -s hash-password\n");
   process.exit(1);
 }
 process.stdout.write(`${await hash(password)}\n`);
