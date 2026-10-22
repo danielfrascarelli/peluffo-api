@@ -8,8 +8,10 @@ import { SecurityModule } from "@/common/security.module";
 import { throttlerOptions } from "@/common/throttler.options";
 import { DataModule } from "@/data/data.module";
 import { AuthModule } from "@/modules/auth/auth.module";
+import { DataExtractionsModule } from "@/modules/data-extractions/data-extractions.module";
 import { HealthModule } from "@/modules/health/health.module";
 import { ResourcesModule } from "@/modules/resources/resources.module";
+import { StatisticsModule } from "@/modules/statistics/statistics.module";
 
 @Module({
   imports: [
@@ -19,7 +21,9 @@ import { ResourcesModule } from "@/modules/resources/resources.module";
     DataModule,
     SecurityModule,
     AuthModule,
+    DataExtractionsModule,
     ResourcesModule,
+    StatisticsModule,
     HealthModule,
   ],
 })

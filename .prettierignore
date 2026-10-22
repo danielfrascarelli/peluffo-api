@@ -2,4 +2,4 @@ dist
 coverage
 .standards
 pnpm-lock.yaml
-data
+/data/

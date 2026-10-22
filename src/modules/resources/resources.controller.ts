@@ -3,9 +3,10 @@ import { ApiCookieAuth, ApiOkResponse, ApiTags } from "@nestjs/swagger";
 import { ApiErrors } from "@/common/api-errors.decorator";
 import { ROLES, Roles } from "@/common/auth.decorator";
 import { ACCESS_COOKIE } from "@/common/token.service";
-import { type JsonObject, JsonDataAccessor } from "@/data/json-data.accessor";
+import { JsonDataAccessor } from "@/data/json-data.accessor";
+import type { Patient, Psychologist, Assignment } from "@/data/resources.types";
 
-// ponytail: item schemas are owned by the frontend's zod schemas (src/lib/schemas.ts). Add DTOs when a second client appears.
+// Resource shapes are defined in data/resources.types.ts; the frontend migration is separate.
 const list = { schema: { type: "array", items: { type: "object" } } } as const;
 
 // Every role reads every resource: Colibrí assigns patients to psychologists, Peluffo and Fibras browse both.
@@ -19,19 +20,19 @@ export class ResourcesController {
 
   @Get("patients")
   @ApiOkResponse(list)
-  patients(): JsonObject[] {
+  patients(): Patient[] {
     return this.data.patients();
   }
 
   @Get("psychologists")
   @ApiOkResponse(list)
-  psychologists(): JsonObject[] {
+  psychologists(): Psychologist[] {
     return this.data.psychologists();
   }
 
   @Get("assignments")
   @ApiOkResponse(list)
-  assignments(): JsonObject[] {
+  assignments(): Assignment[] {
     return this.data.assignments();
   }
 }
