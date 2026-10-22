@@ -4,6 +4,14 @@ import { Injectable, type OnModuleInit } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import type { Role } from "@/common/auth.decorator";
 import { EnvNames } from "@/common/config.options";
+import { ExtractionSnapshotAccessor } from "@/data/extraction-snapshot.accessor";
+import {
+  emptyResources,
+  type Resources,
+  type Patient,
+  type Psychologist,
+  type Assignment,
+} from "@/data/resources.types";
 
 export interface UserRecord {
   id: string;
@@ -17,30 +25,22 @@ export interface UserRecord {
   passwordHash: string;
 }
 
-export type JsonObject = Record<string, unknown>;
-
-// ponytail: JSON files read once at boot, read-only. Edit the file and restart to change data.
-// Move to Prisma when the app needs writes (assignments) or more than one instance.
+// Users load only at boot; resource snapshots can be replaced after an extraction commits.
 @Injectable()
 export class JsonDataAccessor implements OnModuleInit {
   private users: UserRecord[] = [];
-  private data: Record<"patients" | "psychologists" | "assignments", JsonObject[]> = {
-    patients: [],
-    psychologists: [],
-    assignments: [],
-  };
+  private data: Resources = emptyResources();
 
-  constructor(private readonly config: ConfigService) {}
+  constructor(
+    private readonly config: ConfigService,
+    private readonly snapshots: ExtractionSnapshotAccessor,
+  ) {}
 
   async onModuleInit(): Promise<void> {
     const dir = this.config.getOrThrow<string>(EnvNames.DataDir);
-    const load = async <T>(name: string): Promise<T[]> =>
-      JSON.parse(await readFile(join(dir, `${name}.json`), "utf8")) as T[];
-    [this.users, this.data.patients, this.data.psychologists, this.data.assignments] = await Promise.all([
-      load<UserRecord>("users"),
-      load<JsonObject>("patients"),
-      load<JsonObject>("psychologists"),
-      load<JsonObject>("assignments"),
+    [this.users, this.data] = await Promise.all([
+      readFile(join(dir, "users.json"), "utf8").then((value) => JSON.parse(value) as UserRecord[]),
+      this.snapshots.loadActive(),
     ]);
   }
 
@@ -52,15 +52,23 @@ export class JsonDataAccessor implements OnModuleInit {
     return this.users.find((u) => u.id === id);
   }
 
-  patients(): JsonObject[] {
+  patients(): Patient[] {
     return this.data.patients;
   }
 
-  psychologists(): JsonObject[] {
+  psychologists(): Psychologist[] {
     return this.data.psychologists;
   }
 
-  assignments(): JsonObject[] {
+  assignments(): Assignment[] {
     return this.data.assignments;
+  }
+
+  current(): Resources {
+    return this.data;
+  }
+
+  replace(resources: Resources): void {
+    this.data = resources;
   }
 }

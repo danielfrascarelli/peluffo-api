@@ -11,6 +11,7 @@ export enum ErrorCode {
   RateLimited = "RATE_LIMITED",
   Internal = "INTERNAL",
   DependencyUnavailable = "DEPENDENCY_UNAVAILABLE",
+  ExtractionInProgress = "EXTRACTION_IN_PROGRESS",
 }
 
 export const errorStatus: Record<ErrorCode, number> = {
@@ -24,6 +25,7 @@ export const errorStatus: Record<ErrorCode, number> = {
   [ErrorCode.RateLimited]: 429,
   [ErrorCode.Internal]: 500,
   [ErrorCode.DependencyUnavailable]: 503,
+  [ErrorCode.ExtractionInProgress]: 409,
 };
 
 const defaultMessage: Record<ErrorCode, string> = {
@@ -37,6 +39,7 @@ const defaultMessage: Record<ErrorCode, string> = {
   [ErrorCode.RateLimited]: "Too many requests",
   [ErrorCode.Internal]: "Internal server error",
   [ErrorCode.DependencyUnavailable]: "A dependency is unavailable",
+  [ErrorCode.ExtractionInProgress]: "An extraction is already in progress",
 };
 
 export interface ErrorBody {

@@ -10,3 +10,7 @@ coverage/
 .vscode/
 secrets/
 .pnpm-store/**
+data/*/
+data/*.xlsx
+data/current.json
+data/.current-*.json

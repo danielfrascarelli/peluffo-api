@@ -1,6 +1,6 @@
 # 0001 Cookie-based JWT auth over read-only JSON data
 
-Date: 2026-10-19 · Status: accepted
+Date: 2026-10-19 · Status: superseded in part by 0003
 
 ## Context
 
@@ -8,7 +8,7 @@ The frontend shipped with mock data in `public/api/*.json`, including `users.jso
 
 ## Decision
 
-- Data: `data/{patients,psychologists,assignments}.json` copied from the frontend, read once at boot, served read-only at `GET /api/v1/<resource>`. `data/users.json` holds argon2id hashes and is never served.
+- Data: `data/{patients,psychologists,assignments}.json` copied from the frontend, read once at boot, served read-only at `GET /api/v1/<resource>`. `data/users.json` holds argon2id hashes and is never served. Superseded for resource extraction by 0003.
 - Login: `POST /api/v1/auth/login` verifies argon2id; unknown usernames are verified against a dummy hash so both failures take the same time. 5 attempts per minute per IP.
 - Tokens: two HS256 JWTs with distinct secrets, a `type` claim checked on verify, pinned algorithm, issuer and audience.
   - Access: 15 minutes, cookie `__Host-access_token`, `Path=/`.
@@ -30,4 +30,4 @@ The frontend shipped with mock data in `public/api/*.json`, including `users.jso
 - Sessions and rate-limit counters are in-process: a restart logs everyone out, and the service must run as a single instance until they move to a shared store.
 - Two tabs refreshing at the same instant can trip reuse detection and log the user out. The frontend serializes refreshes per tab.
 - Frontend and backend must share a site. A cross-site deployment needs `SameSite=None` plus CSRF tokens, in the same change.
-- Assignment writes still live only in the frontend query cache.
+- Assignment writes still live only in the frontend query cache. Google Sheets extraction is defined by 0003.

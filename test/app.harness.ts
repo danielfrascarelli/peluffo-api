@@ -3,9 +3,12 @@ import type { NestExpressApplication } from "@nestjs/platform-express";
 import type { Response } from "supertest";
 import { AppModule } from "@/app.module";
 import { configureApp } from "@/app.setup";
+import { ConfigService } from "@nestjs/config";
+import { EnvNames } from "@/common/config.options";
 
-export async function createApp(): Promise<NestExpressApplication> {
+export async function createApp(dataDir: string): Promise<NestExpressApplication> {
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+  moduleRef.get(ConfigService).set(EnvNames.DataDir, dataDir);
   const app = moduleRef.createNestApplication<NestExpressApplication>({ bufferLogs: true });
   configureApp(app);
   await app.init();

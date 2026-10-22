@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import type { NestExpressApplication } from "@nestjs/platform-express";
 import request, { type Response } from "supertest";
 import type { App } from "supertest/types";
@@ -9,18 +8,22 @@ const ACCESS = "__Host-access_token";
 const REFRESH = "__Secure-refresh_token";
 const api = (path: string): string => `/api/v1${path}`;
 const errorOf = (res: Response): ErrorBody => res.body as ErrorBody;
-const dataLength = (name: string): number =>
-  (JSON.parse(readFileSync(`data/${name}.json`, "utf8")) as unknown[]).length;
 
 describe("auth and resources", () => {
   let app: NestExpressApplication;
   let server: App;
+  let directory: string;
 
   beforeEach(async () => {
-    app = await createApp();
+    directory = await mkdtemp(join(tmpdir(), "peluffo-auth-"));
+    await copyFile("data/users.json", join(directory, "users.json"));
+    app = await createApp(directory);
     server = app.getHttpServer();
   });
-  afterEach(() => app.close());
+  afterEach(async () => {
+    await app.close();
+    await rm(directory, { recursive: true, force: true });
+  });
 
   const login = (username = "fibras", password = "fibras") =>
     request(server).post(api("/auth/login")).send({ username, password });
@@ -54,7 +57,7 @@ describe("auth and resources", () => {
         .get(api(`/${name}`))
         .set("Cookie", access)
         .expect(200);
-      expect(res.body).toHaveLength(dataLength(name));
+      expect(res.body).toEqual([]);
     }
     const me = await request(server).get(api("/auth/me")).set("Cookie", access).expect(200);
     expect(me.body).toMatchObject({ username: "colaborador.colibri", role: "colibri" });
@@ -123,8 +126,22 @@ describe("auth and resources", () => {
     });
   });
 
+  it("allows only fibras to start an extraction", async () => {
+    await request(server).post(api("/data/extractions")).expect(401);
+    const peluffo = cookiesOf(await login("colaborador.peluffo", "pass123"))[ACCESS]!.pair;
+    await request(server).post(api("/data/extractions")).set("Cookie", peluffo).expect(403);
+    const colibri = cookiesOf(await login("colaborador.colibri", "pass123"))[ACCESS]!.pair;
+    await request(server).post(api("/data/extractions")).set("Cookie", colibri).expect(403);
+    const fibras = cookiesOf(await login())[ACCESS]!.pair;
+    const res = await request(server).post(api("/data/extractions")).set("Cookie", fibras).expect(503);
+    expect(errorOf(res).code).toBe("DEPENDENCY_UNAVAILABLE");
+  });
+
   it("exposes a public liveness probe outside the version prefix", async () => {
     const res = await request(server).get("/api/health/live").expect(200);
     expect(res.body).toEqual({ status: "ok", info: {}, error: {}, details: {} });
   });
 });
+import { copyFile, mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
